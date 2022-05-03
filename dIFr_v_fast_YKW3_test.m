@@ -1,24 +1,24 @@
 function [ ] = dIFr_v_fast_YKW3_test()
 
-trE = msac_read('YKW3_nullex.BHE');
-trN = msac_read('YKW3_nullex.BHN');
-trZ = msac_read('YKW3_nullex.BHZ');
-% wbeg = trE.a;
-% wend = trE.f;
-wbeg = 1517.6345;
-wend =  1527.5747;
+trE = msac_read('YKW3_splitex.BHE');
+trN = msac_read('YKW3_splitex.BHN');
+trZ = msac_read('YKW3_splitex.BHZ');
+wbeg = trE.a;
+wend = trE.f;
+
 % wbeg/end are fixes for now somehow going to trS/trF breaks sac
 % headers
-fast_true = -30;
+fast_true = 44;
 spol = rem(148, 180) - 90 ;
-tlag_true = 3.2;
+tlag_true = 0.95;
 fref = 40;
-tstar = 0.05;
+tstar = 0.3865;
 % Plot input traces (for sanity)
 time = trN.b+[0:trN.npts-1]*trN.delta ;
+ind = find(time>=wbeg-5 & time<=wend+5) ;
 figure(1); hold on
-plot(time, trN.x1, 'r-')
-plot(time, trE.x1, 'b-')
+plot(time(ind), trN.x1(ind), 'r-')
+plot(time(ind), trE.x1(ind), 'b-')
 xline(wbeg, 'k--');
 xline(wend, 'k--');
 xlabel('Time [s]')
@@ -27,14 +27,16 @@ hold off
 xlim([wbeg-5, wend+5])
 % Plot particle  motion
 figure(2);
-plot(trE.x1, trN.x1,'k-')
+
+ind = find(time>=wbeg & time<=wend) ;
+plot(trE.x1(ind), trN.x1(ind),'k-')
 
 % fast directions to search over
 fast = [-90:0.5:90];
 figure(3);
 subplot(2,1,1);
 [trF,trSA]=msac_rotate(trN,trE,fast_true) ;
-zf = hilbert(trF.x1);
+zf = hilbert(trF.x1(ind));
 xf = real(zf);
 yf = imag(zf);
 plot(xf, yf, 'b-'); hold on
@@ -43,7 +45,8 @@ yline(0,'k--')
 title('Fast trace')
 hold off
 subplot(2,1,2);
-zs = hilbert(trSA.x1);
+
+zs = hilbert(trSA.x1(ind));
 xs = real(zs);
 ys = imag(zs);
 plot(xs, ys, 'r-'); hold on

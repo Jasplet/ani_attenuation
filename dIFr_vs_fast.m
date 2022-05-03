@@ -3,10 +3,17 @@ function dIFr_vs_fast()
 % set up parameters
 noise = 0.001 ;
 spol = 75;
+<<<<<<< HEAD
 fast_true = 40;
 tlag_true = 1.5 ;
 tstar = 0.5 ;
 fref=10 ;
+=======
+fast_true = 30;
+tlag_true = 4 ;
+tstar = 0.5 ;
+fref=40 ;
+>>>>>>> 62a4fcf8bee7b938b67d834b07f0fcc06e32c990
 
 % generate synthetics
 [trN,trE,trZ]=msac_splitwave(fast_true,tlag_true,spol,noise) ;
