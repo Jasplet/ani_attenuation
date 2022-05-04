@@ -3,17 +3,10 @@ function dIFr_vs_fast()
 % set up parameters
 noise = 0.001 ;
 spol = 75;
-<<<<<<< HEAD
 fast_true = 40;
-tlag_true = 1.5 ;
-tstar = 0.5 ;
+tlag_true = 0 ;
+tstar = 1;
 fref=10 ;
-=======
-fast_true = 30;
-tlag_true = 4 ;
-tstar = 0.5 ;
-fref=40 ;
->>>>>>> 62a4fcf8bee7b938b67d834b07f0fcc06e32c990
 
 % generate synthetics
 [trN,trE,trZ]=msac_splitwave(fast_true,tlag_true,spol,noise) ;
@@ -112,7 +105,7 @@ title(['tlag = ' sprintf('%5.2fs',tlag_true) '; dt* =' sprintf('%5.2fs',tstar)])
 
 aax=axis() ;
 
-axis([fast(1) fast(end) 0.05 0.15]) ;
+axis([fast(1) fast(end) aax(3) aax(4)]) ;
 %      min([min(ifrF) min(ifrFc) min(ifrS) min(ifrSc)]) ...
 %      max([max(ifrF) max(ifrFc) max(ifrS) max(ifrSc)]) ]) ;
 
@@ -128,8 +121,8 @@ aax=axis() ;
 
 
 xline(fast_true, 'k-','LineWidth',1.5, 'DisplayName','fast') ;
-xline(fast_pred, 'k--','LineWidth',1.5, 'DisplayName','fast pred.') ;
-xline(fast_predc, 'k-.','LineWidth',1.5, 'DisplayName','fast corr. pred.') ;
+xline(fast_pred(1), 'k--','LineWidth',1.5, 'DisplayName','fast pred.') ;
+xline(fast_predc(1), 'k-.','LineWidth',1.5, 'DisplayName','fast corr. pred.') ;
 xline(spol,'r-','LineWidth',1.5, 'DisplayName','spol') ;
 xline(spol_pred,'r--','LineWidth',1.5, 'DisplayName','spol pred.') ;
 xline(spol_predc,'r-.','LineWidth',1.5, 'DisplayName','spol corr. pred.') ;

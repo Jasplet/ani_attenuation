@@ -11,7 +11,7 @@ fref = 100;
 % generate synthetics
 [trN,trE,trZ]=msac_splitwave(fast_true,tlag_true,spol,noise) ;
 
-fast = -90:90 ;
+fast = -60:90 ;
 
 % apply the tstar value
 [trF,trS]=msac_rotate(trN,trE,fast_true) ;
@@ -33,7 +33,7 @@ for i=1:length(fast)
    trS = msac_tshift(trS,-1.5,'int') ;
    ifrF(i)=msac_ifa_wwind(trF,trF.a,trF.f) ;
    ifrS(i)=msac_ifa_wwind(trS,trS.a,trS.f) ;
-   dtstar(i) = msac_measure_dtstar(trF,trS,trS.a,trS.f,fref,[0:0.02:5]) ;
+   dtstar(i) = msac_measure_dtstar(trF,trS,trS.a,trS.f,fref,[0:0.02:4]) ;
    
    M = cov(trF.x1,trS.x1) ;
    E = eig(M) ;
