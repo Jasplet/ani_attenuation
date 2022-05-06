@@ -1,8 +1,8 @@
 function [ ] = dIFr_v_fast_YKW3_test()
 
-trE = msac_read('YKW3_splitex.BHE');
-trN = msac_read('YKW3_splitex.BHN');
-trZ = msac_read('YKW3_splitex.BHZ');
+trE = msac_read('data/YKW3_splitex.BHE');
+trN = msac_read('data/YKW3_splitex.BHN');
+trZ = msac_read('data/YKW3_splitex.BHZ');
 wbeg = trE.a;
 wend = trE.f;
 

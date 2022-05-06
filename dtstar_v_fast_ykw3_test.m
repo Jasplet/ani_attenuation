@@ -16,7 +16,7 @@ trZ = msac_read('ykw3_test.BHZ');
 wbeg = trE.a;
 wend = trE.f;
 
-fast = 50:0.1:65 ;
+fast = -90:90 ;
 
 %trSA = trS ;
 for i=1:length(fast)
