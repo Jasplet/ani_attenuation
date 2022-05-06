@@ -2,7 +2,7 @@ function dIFr_vs_fast()
 
 % set up parameters
 noise = 0.001 ;
-spol = 75;
+spol = -75;
 fast_true = 40;
 tlag_true = 0 ;
 tstar = 1;
@@ -120,12 +120,12 @@ plot(fast,dIFrc,'g--','LineWidth',1.5, 'DisplayName','F-S (corr)') ;
 aax=axis() ;
 
 
-xline(fast_true, 'k-','LineWidth',1.5, 'DisplayName','fast') ;
-xline(fast_pred(1), 'k--','LineWidth',1.5, 'DisplayName','fast pred.') ;
-xline(fast_predc(1), 'k-.','LineWidth',1.5, 'DisplayName','fast corr. pred.') ;
-xline(spol,'r-','LineWidth',1.5, 'DisplayName','spol') ;
-xline(spol_pred,'r--','LineWidth',1.5, 'DisplayName','spol pred.') ;
-xline(spol_predc,'r-.','LineWidth',1.5, 'DisplayName','spol corr. pred.') ;
+xline(fast_true, 'r-','LineWidth',1.5, 'DisplayName','\phi') ;
+xline(fast_pred(1), 'r--','LineWidth',1.5, 'DisplayName','\phi pred.') ;
+xline(fast_predc(1), 'r-.','LineWidth',1.5, 'DisplayName','\phi corr. pred.') ;
+xline(spol,'k-','LineWidth',1.5, 'DisplayName','\beta') ;
+xline(spol_pred,'k--','LineWidth',1.5, 'DisplayName','\beta pred.') ;
+xline(spol_predc,'k-.','LineWidth',1.5, 'DisplayName','\beta corr. pred.') ;
 yline(0, 'k:','LineWidth',1.5, 'DisplayName', 'y=0') ;
 xlabel('Reference frame rotation (degrees)')
 ylabel('\Delta Inst. freq. (Hz)')
@@ -144,8 +144,8 @@ ylabel('lam_2')
 
 aax=axis() ;
 hold on
-xline(fast_true, 'k-','LineWidth',1.5) ;
-xline(spol,'k--','LineWidth',1.5) ;
+xline(fast_true, 'r-','LineWidth',1.5) ;
+xline(spol,'k-','LineWidth',1.5) ;
 axis([fast(1) fast(end) aax(3) aax(4)]) ;
 legend('uncorr','corr')
 return
