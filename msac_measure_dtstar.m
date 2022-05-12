@@ -17,13 +17,16 @@ else
    ref_infreq = ifrtr2 ;
 end
 
-% dtstar_old = 0; % t* attref in Mathenay and Nowack (1995)
-% i = 0;
-% while abs(difr) > 0.1
-%    tr_attenuated = msac_apply_tstar_operator(tr_to_attenuate, fref, dtstar_old);
-%    f_attref = msac_ifa_wwind(tr_attenuated, t0, t1);
-%    
-% end
+dtstar_old  = 0; % t* attref in Mathenay and Nowack (1995)
+
+for i=1:100
+   tr_attenuated = msac_apply_tstar_operator(tr_to_attenuate, fref, dtstar_old);
+   f_attref = msac_ifa_wwind(tr_attenuated, t0, t1);
+   difr = ref_infreq - f_attref; % Difference in IFr between the traces
+   dfdtstar = difr - difr_old; 
+   dtstar = dtstar_old + difr/dfdtstar;
+   
+end
 
 ifa = zeros(1,length(srange)) ;
 
