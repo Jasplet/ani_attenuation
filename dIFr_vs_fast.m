@@ -4,7 +4,7 @@ function dIFr_vs_fast()
 noise = 0.001 ;
 spol = -75;
 fast_true = 40;
-tlag_true = 0 ;
+tlag_true = 1.0 ;
 tstar = 1;
 fref=10 ;
 
@@ -50,7 +50,7 @@ hold off
 
 for i=1:length(fast)
    [trF,trS]=msac_rotate(trN,trE,fast(i)) ;
-   trS = msac_tshift(trS,-tlag_true,'int') ;
+   %trS = msac_tshift(trS,-tlag_true,'int') ;
    ifrF(i)=msac_ifa_wwind(trF,trF.a,trF.f) ;
    ifrS(i)=msac_ifa_wwind(trS,trS.a,trS.f) ;
    M = cov(trF.x1,trS.x1) ;
