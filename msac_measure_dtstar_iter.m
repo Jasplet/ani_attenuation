@@ -24,12 +24,13 @@ dtstars = zeros(50,1);
 dtstars(1) = 0;
 difrs(1) = difr;
 % Start search at t* = 0.05
-dtstars(2)  = 0.05; % t* attref in Mathenay and Nowack (1995)
+dtstars(2)  = 0.5; % t* attref in Mathenay and Nowack (1995)
 i = 2;
-while (abs(difr) >= 1e-3) && (i <=20)
+while (abs(difr) >= 1e-3) && (i <=20) && (dtstars(i) < 4)
    tr_attenuated = msac_apply_tstar_operator(tr_to_attenuate, fref, dtstars(i));
    ifr = msac_ifa_wwind(tr_attenuated, wbeg, wend);
-   difrs(i) = ifr - ifr_obs; % Difference in IFr between the traces
+   difr = ifr - ifr_obs; % Difference in IFr between the traces
+   difrs(i) = difr;
    step = dtstars(i) - dtstars(i-1);
    dfdts = (ifr - ifr_old)/step;
    ifr_old = ifr;

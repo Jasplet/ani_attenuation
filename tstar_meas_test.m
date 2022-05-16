@@ -20,8 +20,8 @@ trSA = msac_apply_tstar_operator(trS,fref,tstar) ;
 ifrtrF=msac_ifa_wwind(trF,trF.a,trF.f) ;
 ifrtrS=msac_ifa_wwind(trSA,trSA.a,trSA.f) ;
 
-[difrs, dtstars] =  meas_tstar(trF, trSA, trF.a, trF.f, fref);
-
+[difrs, dtstars] =  msac_measure_dtstar_iter(trF, trSA, trF.a, trF.f, fref);
+dts = dtstars(end);
 srange = [0:0.2:4];
 difr_range = zeros(1,length(srange));
 for i = 1:length(srange)
@@ -36,8 +36,12 @@ figure()
 plot(srange, difr_range, 'k-', 'Linewidth',1.5)
 hold on
 plot(dtstars, difrs, 'rx', 'Markersize',10)
+text(dts +0.1, 0.01,['measured \Delta t* = ',sprintf('%4.2f',dts),'s'])
+yline(0,'k--')
+xline(dts,'k--', 'LineWidth',1.5)
 xlabel('\Delta t*')
 ylabel('\Delta IFr')
+title(['Synthetic waveform with t* = ', sprintf('%4.2f',tstar), 's']);
 
 %% Test measurement method on a real world example from YKW3
 
@@ -59,8 +63,8 @@ ifrS=msac_ifa_wwind(trS, wbeg, wend) ;
 
 difr = ifrF - ifrS;
 
-[difrs, dtstars] =  meas_tstar(trF, trS, wbeg, wend, fref);
-
+[difrs, dtstars] =  msac_measure_dtstar_iter(trF, trS, wbeg, wend, fref);
+dts = dtstars(end);
 srange = [0:0.2:4];
 difr_range = zeros(1,length(srange));
 for i = 1:length(srange)
@@ -75,9 +79,13 @@ figure()
 plot(srange, difr_range, 'k-', 'Linewidth',1.5)
 hold on
 plot(dtstars, difrs, 'rx', 'Markersize',10)
+yline(0,'k--')
+xline(dts,'k--', 'LineWidth',1.5)
+text(dts +0.1, 0.05,['measured \Delta t* = ',sprintf('%4.2f',dts),'s'])
 xlabel('\Delta t*')
 ylabel('\Delta IFr')
-%%
+title('Example \Deltat* measurement for SKS phase recorded at Yellowknife array station YKW3')
+%% Original devel version of function - now see msac_measure_dtstar_iter.m
 function [difrs, dtstars] =  meas_tstar(tr1, tr2, wbeg, wend, fref)
 
 ifrtr1=msac_ifa_wwind(tr1, wbeg, wend) ;
@@ -107,7 +115,8 @@ i = 2;
 while (abs(difr) >= 1e-3) && (i <=20)
    tr_attenuated = msac_apply_tstar_operator(tr_to_attenuate, fref, dtstars(i));
    ifr = msac_ifa_wwind(tr_attenuated, wbeg, wend);
-   difrs(i) = ifr - ifr_obs; % Difference in IFr between the traces
+   difr = ifr - ifr_obs; % Difference in IFr between the traces
+   difrs(i) = difr;
    step = dtstars(i) - dtstars(i-1);
    dfdts = (ifr - ifr_old)/step;
    ifr_old = ifr;
