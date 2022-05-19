@@ -66,7 +66,7 @@ ylabel('Difference in instantaneous frequency [Hz]')
 title('dIFr(t*) for a range of reference frequencies') 
 
 %% Repeat but plot attenuated traces 
-ts_range = [0, 0.5, 1.0, 5.5];
+ts_range = [0.5, 5.5];
 time = trF.b+[0:trF.npts-1]*trF.delta;
 ind = find(time>=trF.a & time<=trF.f) ;
 n = length(ts_range);
@@ -104,7 +104,7 @@ zfSA = hilbert(trSA.x1);
 iampSA = sqrt( real(zfSA).^2 + imag(zfSA).^2 ) ; % eqn 4 of Mathenay and Nowack
 iphSA = atan(imag(zfSA)./real(zfSA)) ; % eqn 5 of Mathenay and Nowack
 
-ts_range = [0.5, 1, 5.5]; % aggressivelylarge t* range
+ts_range = [0.5, 5.5]; % aggressivelylarge t* range
 n = length(ts_range);
 time = trF.b+[0:trF.npts-1]*trF.delta;
 ind = find(time>=trF.a & time<= trF.f);
