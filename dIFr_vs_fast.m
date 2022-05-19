@@ -50,7 +50,7 @@ hold off
 
 for i=1:length(fast)
    [trF,trS]=msac_rotate(trN,trE,fast(i)) ;
-   trS = msac_tshift(trS,-tlag_true,'int') ;
+   %trS = msac_tshift(trS,-tlag_true,'int') ;
    ifrF(i)=msac_ifa_wwind(trF,trF.a,trF.f) ;
    ifrS(i)=msac_ifa_wwind(trS,trS.a,trS.f) ;
    M = cov(trF.x1,trS.x1) ;
