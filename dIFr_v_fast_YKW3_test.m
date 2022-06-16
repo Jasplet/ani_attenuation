@@ -160,10 +160,4 @@ axis([-90 90 aax(3) aax(4)]) ;
 legend('uncorr','corr')
 return
 
-figure
-
-plot(fast,lam2.*dIFr.^3,'r-','LineWidth',1.5)
-hold on
-plot(fast,lam2c.*dIFrc.^3,'r--','LineWidth',1.5)
-
 end
