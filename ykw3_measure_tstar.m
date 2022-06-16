@@ -4,7 +4,6 @@ ykw3_data = readtable('YKW3_sks_splitting.txt', 'Format','%s%s%s%f%f%f%f%f%f%f%f
 % have changed.sdb to .txt to make matlab reasing easier.
 path = '/Users/ja17375/Projects/DeepMelt/CanadianShield/YKW3/run/';
 fref = 10; 
-dts_init = 1.0;
 snr_min = 5;
 n = height(ykw3_data);
 dtstars = zeros(n,1);
@@ -27,6 +26,7 @@ for idx = 1:n
        trE = msac_read([path, fileid, '.BHE']);
        trZ = msac_read([path, fileid, '.BHZ']);
 
+       dts_init = 1.0;
        [dtstar, difr] = measure_dtstar(trN, trE, fast_true, tlag_true, wbeg, wend, dts_init, fref, date, time);
        plot_ifr_v_tstar(trN, trE, wbeg, wend, fast_true, tlag_true, spol, dtstar, fref);
        pause(2);
@@ -88,7 +88,8 @@ function [dtstar, difr] = measure_dtstar(trN, trE, fast_true, tlag_true, wbeg, w
        difr = ifr_trial - ifr_ref;
        difr_range(jdx) = difr;
    end
-   figure(1) 
+
+   figure("Position",[800 400 800 800])
    plot(srange, difr_range, 'k-', 'Linewidth',1.5)
    hold on
    % Plot absolute value of dt* here. This is becuase this figure (dIfr v
@@ -117,7 +118,8 @@ function [] = plot_ifr_v_tstar(trN, trE, wbeg, wend, fast,tlag, spol, tstar, fre
 npts = 0:trN.npts-1;
 time = trN.b+npts*trN.delta ;
 ind = find(time>=wbeg-5 & time<=wend+5) ;
-figure(); hold on
+
+figure("Position",[1600, 800, 600,600]); hold on
 [trF,trS] = msac_rotate(trN,trE,fast);
 plot(time(ind), trF.x1(ind), 'r-')
 plot(time(ind), trS.x1(ind), 'b-')

@@ -19,14 +19,15 @@ else
    ifr_ref = ifrtr1 ; % f_attn in Matheney and Nowack for initial condition t* = 0 
 end
 
+% Gradient descent method
+% Initial conditions. t* = 0
+ifr_old = ifr_ref;
 difrs = zeros(50,1);
 dtstars = zeros(50,1);
-% Initial conditions. t* = 0
 difr = ifr_ref - ifr_obs;
-ifr_old = ifr_ref;
-dtstars(1) = 0;
 difrs(1) = difr;
-% Start search at t* = 0.05
+% Start search at initial guess t* (this gives us a second points along
+% with t*  = 0)
 dtstars(2)  = dtstar_init; % t* attref in Mathenay and Nowack (1995)
 i = 2;
 while (abs(difr) >= 1e-3)
