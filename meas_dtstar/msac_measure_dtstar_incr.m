@@ -39,7 +39,7 @@ while trial_dts <= 4
         ifr = msac_ifa_wwind(tr_attenuated, wbeg, wend);
         difr = ifr - ifr_obs; % Difference in IFr between the traces
         % We use these names so this mode returns the same
-        fprintf('Measured dt* = %4.3f after %i iterations', dtstar, i)
+        fprintf('Measured dt* = %4.3f after %i iterations \n', dtstar, i)
         return 
     else
         % Keep searching, increment trial_dts
@@ -50,5 +50,5 @@ while trial_dts <= 4
 end
 dtstar = 4;
 difr = difr_new;
-fprintf('Measuring dt* %4.3f exceeds expected range', dtstar)
+fprintf('Measuring dt* %4.3f exceeds expected range \n', dtstar)
 end
