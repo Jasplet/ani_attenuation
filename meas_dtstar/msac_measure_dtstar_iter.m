@@ -4,6 +4,7 @@ function [difrs, dtstars]=msac_measure_dtstar_iter(tr1,tr2,wbeg,wend, dtstar_ini
 
 ifrtr1=msac_ifa_wwind(tr1, wbeg, wend) ;
 ifrtr2=msac_ifa_wwind(tr2, wbeg, wend) ;
+
 difr_test = ifrtr1 - ifrtr2 ;
 
 % based on sign, determine direction of correction
@@ -50,5 +51,6 @@ while (abs(difr) >= 1e-3)
 end
 difrs = difrs(1:i);
 dtstars = dtstars(1:i).*signTS;
+
 
 end
