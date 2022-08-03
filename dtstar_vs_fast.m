@@ -9,9 +9,9 @@ tstar = 0.5 ;
 fref = 100;
 
 % generate synthetics
-[trN,trE,trZ]=msac_splitwave(fast_true,tlag_true,spol,noise) ;
+[trN,trE,trZ]=msac_splitwave(fast_true,tlag_true,'spol',spol,'noise',noise) ;
 
-fast = -60:90 ;
+fast = -90:90 ;
 
 % apply the tstar value
 [trF,trS]=msac_rotate(trN,trE,fast_true) ;
