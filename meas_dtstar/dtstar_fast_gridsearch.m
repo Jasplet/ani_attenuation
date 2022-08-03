@@ -1,4 +1,4 @@
-function [difr] = dtstar_fast_gridsearch(trN, trE, s_fast, s_dtstar, fref)
+function [difr] = dtstar_fast_gridsearch(trN, trE, wbeg, wend, s_fast, s_dtstar, fref)
 % Performs a grid search over fast direction and differential attenuation 
 n = length(s_fast);
 m = length(s_dtstar);
@@ -10,8 +10,8 @@ for i=1:length(s_fast)
       [trF,trS]=msac_rotate(trN,trE,s_fast(i)) ;
       trF = msac_apply_tstar_operator(trF,fref,s_dtstar(j)) ;
       
-      ifrF(i,j)=msac_ifa_wwind(trF,trF.a,trF.f) ;
-      ifrS(i,j)=msac_ifa_wwind(trS,trS.a,trS.f) ;
+      ifrF(i,j)=msac_ifa_wwind(trF,wbeg,wend) ;
+      ifrS(i,j)=msac_ifa_wwind(trS,wbeg,wend) ;
       difr(i,j)=abs(ifrF(i,j) - ifrS(i,j)) ;
    end
 
