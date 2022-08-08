@@ -9,9 +9,9 @@ Created on Mon Aug  8 10:32:28 2022
 import numpy as np
 import obspy
 
-from waveform_tools import rotate_traces, apply_tshift, time_base, randn_noise
-
-def gen_synthetic_s(fast, tlag, **kwargs):
+from waveform_tools import rotate_traces, apply_tshift, time_base, randn_noise, apply_tstar_operator
+    
+def gen_synthetic_split(fast, tlag, **kwargs):
     '''
     Function to generate a synthetic shear-wave
 
@@ -42,7 +42,7 @@ def gen_synthetic_s(fast, tlag, **kwargs):
         nsamps = kwargs['nsamps']
     else:
         #default number of samples is 10 times dominant preiod (1/dfreq)
-        nsamps = 1 + 10*(1/ dfreq) / delta 
+        nsamps = int(1 + 10*(1/ dfreq) / delta)
     time = time_base(delta, nsamps)
     # create wavelet
     wavelet = gabor_wavelet(time, dfreq)
@@ -53,11 +53,13 @@ def gen_synthetic_s(fast, tlag, **kwargs):
     waveletZ = randn_noise(int(nsamps), max_amp*noise)
     waveletF, waveletS = rotate_traces(waveletN, waveletE, fast)
     waveletS = apply_tshift(waveletS, tlag, delta, time[0])
+    if 'dtstar' in kwargs:
+        waveletS = apply_tstar_operator(waveletS, 1, kwargs['dtstar'], delta, nsamps)
     waveletN, waveletE = rotate_traces(waveletF, waveletS, -1*fast)
     # Now add metadata needed to make a obspy Trace/Stream object
     stats = make_stats_dict(delta, nsamps, dfreq, time)
     traceN = obspy.Trace()
-    traceN.stats = stats
+    traceN.stats = stats.copy()
     traceN.stats.channel = 'BHN'
     traceN.stats.sac.cmpaz = 0
     traceN.stats.sac.cmpinc = 90
@@ -65,7 +67,7 @@ def gen_synthetic_s(fast, tlag, **kwargs):
     traceN.data = waveletN
     #East cmp
     traceE = obspy.Trace()
-    traceE.stats = stats
+    traceE.stats = stats.copy()
     traceE.stats.channel = 'BHE'
     traceE.stats.sac.cmpaz = 90
     traceE.stats.sac.cmpinc = 90
@@ -73,7 +75,7 @@ def gen_synthetic_s(fast, tlag, **kwargs):
     traceE.data = waveletE
     # Vertical cmp
     traceZ = obspy.Trace()
-    traceZ.stats = stats
+    traceZ.stats = stats.copy()
     traceZ.stats.channel = 'BHZ'
     traceZ.stats.sac.cmpaz = 00
     traceZ.stats.sac.cmpinc = 0
@@ -143,4 +145,4 @@ def make_stats_dict(delta, nsamps, dfreq, time):
     return stats
 
 if __name__ == '__main__':
-    wv = gen_synthetic_s(45, 1, spol=20)
+    wv = gen_synthetic_split(45, 1, spol=20)
