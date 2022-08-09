@@ -86,3 +86,9 @@ def window_traces(st):
         trace.data = trace.data[window]
         
     return st_func
+
+if __name__ == '__main__':
+    from synthetics import gen_synthetic_split
+    
+    st = gen_synthetic_split(60, 1, dtstar=1)
+    dtstar_gridsearch(st, 100, 100)
