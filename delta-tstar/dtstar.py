@@ -8,7 +8,9 @@ Created on Fri Aug  5 09:51:11 2022
 
 import numpy as np
 import obspy
+import numba
 
+@numba.jit()
 def apply_tstar_operator(trace, fref, tstar):
     """
     Applies a causal t* operaor (at a reference fruency fref) to the input trace
@@ -32,11 +34,7 @@ def apply_tstar_operator(trace, fref, tstar):
 
     """
     
-    
-    time = trace.times()
-    signal = trace.data
-    f_samp = 1/trace.stats.delta
-   
+    signal = trace.data   
     # Take fft of trace. Supplying a larger n 0-pads trace.
     n = int(nextpow2(trace.stats.npts))
     fd_signal = np.fft.fft(signal, n)
