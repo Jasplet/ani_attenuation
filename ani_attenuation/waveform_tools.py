@@ -11,7 +11,40 @@ import obspy
 
 from scipy.interpolate import PchipInterpolator
 
-def rotate_traces(tr_y, tr_x, theta):
+def rotate_traces(trace1, trace2, theta):
+    '''
+    Rotate two obspy traces to the desired rotation angle theta. 
+    
+    Adapted port of msac_rotate 
+    Parameters
+    ----------
+    trace1 : obspy Trace
+        y-direction trace (e.g. North component)
+    trace2 : obspy Trace
+        x-direction trace (e.g. East component)
+    theta : float
+        Rotation angle in degrees
+        
+    Returns
+    -------
+    trace1p : obspy Trace
+        rotated trace1
+    trace2p : obspy Trace
+        rotated trace2
+    '''
+    ydata = trace1.data.copy()
+    xdata = trace2.data.copy()
+    trace1p = trace1.copy()
+    trace2p = trace2.copy()
+    
+    ydatap, xdatap = rotate(ydata, xdata, theta)
+    trace1p.data = ydatap
+    trace2p.data = xdatap
+    trace1p.stats.sac['cmpaz'] = trace1.stats.sac['cmpaz'] + theta 
+    trace2p.stats.sac['cmpaz'] = trace2.stats.sac['cmpaz'] + theta
+    return trace1p, trace2p
+    
+def rotate(y, x, theta):
     """
     Rotate 2 orthogonal traces
 
@@ -27,20 +60,20 @@ def rotate_traces(tr_y, tr_x, theta):
     None.
 
     """
-    if len(tr_y) != len(tr_x):
+    if len(y) != len(x):
         raise ValueError('Traces must be same length!')
-    if (len(tr_y.shape) > 1 ) or (len(tr_x.shape) > 1):
+    if (len(y.shape) > 1 ) or (len(x.shape) > 1):
         raise ValueError('Traces must be 1-D arrays!')
     
-    trs = np.vstack((tr_x, tr_y)) # tr1 is y so goes second
+    trs = np.vstack((x, y)) # tr1 is y so goes second
     # form rotation matrix
     radtheta = np.deg2rad(theta)
     c = np.cos(radtheta)
     s = np.sin(radtheta)
     rotmat = np.array(((c, -s), (s,c)))
-    tr_xp, tr_yp = np.matmul(rotmat, trs)
+    xp, yp = np.matmul(rotmat, trs)
     
-    return tr_yp, tr_xp
+    return yp, xp
     
 def time_base(delta, nsamps):
     '''
@@ -88,7 +121,8 @@ def randn_noise(n, amp):
     """
     return np.random.randn(n)*amp
 
-def apply_tstar_operator(signal, fref, tstar, delta, nsamps):
+
+def apply_tstar(trace, fref, tstar):
     """
     Applies a causal t* operaor (at a reference fruency fref) to the input trace
 
@@ -110,6 +144,10 @@ def apply_tstar_operator(signal, fref, tstar, delta, nsamps):
     None.
 
     """
+    
+    signal = trace.data.copy()
+    delta = trace.stats.delta
+    nsamps = trace.stats.npts
     
     # Take fft of trace. Supplying a larger n 0-pads trace.
     n = int(nextpow2(nsamps))
@@ -134,7 +172,9 @@ def apply_tstar_operator(signal, fref, tstar, delta, nsamps):
     # Take inverse fft
     attenuated_signal = np.fft.ifft(attenuated_fd_signal)
     
-    return attenuated_signal[0:nsamps].real
+    tr_out = trace.copy()
+    tr_out.data = attenuated_signal[0:nsamps].real
+    return tr_out
 
 def nextpow2(i):
   n = 2
