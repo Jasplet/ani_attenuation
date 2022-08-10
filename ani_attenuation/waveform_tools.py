@@ -121,15 +121,10 @@ def randn_noise(n, amp):
     """
     return np.random.randn(n)*amp
 
-
-def apply_tstar(trace, fref, tstar):
+def attenuate_traces(trace, fref, tstar):
     """
-    Applies a causal t* operaor (at a reference fruency fref) to the input trace
+    Applies t* operator to obspy trace object
 
-    Reference: Matheney, M. P. & Nowack, R. L. Geophys J Int 123, 1–15 (1995).
-    
-    Ported from msac_apply_tstar_operator by J Wookey (2022)
-    
     Parameters
     ----------
     trace : TYPE
@@ -144,11 +139,39 @@ def apply_tstar(trace, fref, tstar):
     None.
 
     """
-    
     signal = trace.data.copy()
     delta = trace.stats.delta
     nsamps = trace.stats.npts
     
+    attenuated_signal = apply_tstar(signal, fref, tstar, delta, nsamps)
+      
+    tr_out = trace.copy()
+    tr_out.data = attenuated_signal
+    return tr_out
+    
+def apply_tstar(signal, fref, tstar, delta, nsamps):
+    """
+    Applies a causal t* operaor (at a reference fruency fref) to the input trace
+
+    Reference: Matheney, M. P. & Nowack, R. L. Geophys J Int 123, 1–15 (1995).
+    
+    Ported from msac_apply_tstar_operator by J Wookey (2022)
+    
+    Parameters
+    ----------
+    signal : TYPE
+        DESCRIPTION.
+    fref : TYPE
+        DESCRIPTION.
+    tstar : TYPE
+        DESCRIPTION.
+
+    Returns
+    -------
+    None.
+
+    """
+
     # Take fft of trace. Supplying a larger n 0-pads trace.
     n = int(nextpow2(nsamps))
     fd_signal = np.fft.fft(signal, n)
@@ -172,9 +195,7 @@ def apply_tstar(trace, fref, tstar):
     # Take inverse fft
     attenuated_signal = np.fft.ifft(attenuated_fd_signal)
     
-    tr_out = trace.copy()
-    tr_out.data = attenuated_signal[0:nsamps].real
-    return tr_out
+    return attenuated_signal[0:nsamps].real
 
 def nextpow2(i):
   n = 2
