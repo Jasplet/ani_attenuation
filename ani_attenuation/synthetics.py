@@ -9,7 +9,7 @@ Created on Mon Aug  8 10:32:28 2022
 import numpy as np
 import obspy
 
-from waveform_tools import rotate, apply_tshift, time_base, randn_noise, apply_tstar_operator
+from waveform_tools import rotate, apply_tshift, time_base, randn_noise, apply_tstar
     
 def gen_synthetic_split(fast, tlag, **kwargs):
     '''
@@ -54,7 +54,7 @@ def gen_synthetic_split(fast, tlag, **kwargs):
     waveletF, waveletS = rotate(waveletN, waveletE, fast)
     waveletS = apply_tshift(waveletS, tlag, delta, time[0])
     if 'dtstar' in kwargs:
-        waveletS = apply_tstar_operator(waveletS, 1, kwargs['dtstar'], delta, nsamps)
+        waveletS = apply_tstar(waveletS, 1, kwargs['dtstar'], delta, nsamps)
     waveletN, waveletE = rotate(waveletF, waveletS, -1*fast)
     # Now add metadata needed to make a obspy Trace/Stream object
     stats = make_stats_dict(delta, nsamps, dfreq, time)
