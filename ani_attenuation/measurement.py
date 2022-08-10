@@ -11,7 +11,7 @@ import numba
 import scipy.signal
 import obspy
 
-from waveform_tools import apply_tstar, rotate_traces
+from waveform_tools import attenuate_traces, rotate_traces
 
 def measure_dtstar(files, snr_max, nfast=181, ndts=81):
     
@@ -44,7 +44,7 @@ def dtstar_gridsearch(waveforms, nfast, ndts, fref=1):
         # for the slow trace now        
         inst_freq_trS = measure_inst_freq(trS)
         for j in numba.prange(0, ndts):
-            apply_tstar(trF, fref, dtstars[j])
+            attenuate_traces(trF, fref, dtstars[j])
             inst_freq_trF = measure_inst_freq(trF)
             difrs[i,j] = np.abs(inst_freq_trF - inst_freq_trS)
     
@@ -88,5 +88,8 @@ def window_traces(st):
 if __name__ == '__main__':
     from synthetics import gen_synthetic_split
     
-    st = gen_synthetic_split(60, 1, dtstar=1)
+    st = gen_synthetic_split(30, 1, dtstar=1)
+    trF, trS = rotate_traces(st[0], st[1] ,30)
+    trSA = attenuate_traces(trS, 1, 1)
+    st = window_traces(st)
     difr= dtstar_gridsearch(st, 100, 100)
