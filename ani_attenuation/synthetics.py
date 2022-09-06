@@ -9,7 +9,7 @@ Created on Mon Aug  8 10:32:28 2022
 import numpy as np
 import obspy
 
-from waveform_tools import rotate, apply_tshift, time_base, randn_noise, apply_tstar
+from .waveform_tools import rotate, apply_tshift, time_base, randn_noise, apply_tstar
     
 def gen_synthetic_split(fast, tlag, **kwargs):
     '''
@@ -19,7 +19,7 @@ def gen_synthetic_split(fast, tlag, **kwargs):
     -------
     None.
     '''
-    defaults = {'noise':0, 'dfreq':0.1, 'delta':0.02, 'spol':30}
+    defaults = {'noise':0, 'dfreq':0.2, 'delta':0.05, 'spol':30}
     if 'noise'in kwargs:
         noise = kwargs['noise']
     else:
@@ -92,7 +92,7 @@ def gabor_wavelet(t, dfreq, gamma=6, v=np.pi*(2/5), t0=0):
     term2 = np.exp((-4 * (np.pi**2) * (dfreq**2) * (t-t0)**2)/gamma)
     wavelet = term1*term2
     
-    return wavelet
+    return wavelet / max(wavelet)
     
 def ricker_wavelet(t, sigma=0.1):
     '''
