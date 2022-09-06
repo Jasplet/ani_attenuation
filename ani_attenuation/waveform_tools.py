@@ -44,7 +44,7 @@ def rotate_traces(trace1, trace2, theta):
     trace2p.stats.sac['cmpaz'] = trace2.stats.sac['cmpaz'] + theta
     return trace1p, trace2p
     
-def rotate(y, x, theta):
+def rotate(x, y, theta):
     """
     Rotate 2 orthogonal traces
 
@@ -70,8 +70,11 @@ def rotate(y, x, theta):
     radtheta = np.deg2rad(theta)
     c = np.cos(radtheta)
     s = np.sin(radtheta)
-    rotmat = np.array(((c, -s), (s,c)))
-    xp, yp = np.matmul(rotmat, trs)
+    rotmat = np.array([
+        [ np.cos(radtheta), np.sin(radtheta)],
+        [-np.sin(radtheta), np.cos(radtheta)]
+        ])
+    xp, yp = np.dot(rotmat, trs)
     
     return yp, xp
     
@@ -142,12 +145,10 @@ def attenuate_traces(trace, fref, tstar):
     signal = trace.data.copy()
     delta = trace.stats.delta
     nsamps = trace.stats.npts
-    
     attenuated_signal = apply_tstar(signal, fref, tstar, delta, nsamps)
-      
-    tr_out = trace.copy()
-    tr_out.data = attenuated_signal
-    return tr_out
+    
+    trace.data = attenuated_signal
+    return trace
     
 def apply_tstar(signal, fref, tstar, delta, nsamps):
     """
