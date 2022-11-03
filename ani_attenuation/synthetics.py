@@ -8,8 +8,7 @@ Created on Mon Aug  8 10:32:28 2022
 
 import numpy as np
 import obspy
-
-from waveform_tools import rotate, apply_tshift, time_base, randn_noise, apply_tstar
+from .waveform_tools import rotate, apply_tshift, time_base, randn_noise, attenuate_traces, rotate_traces
     
 def gen_synthetic_split(fast, tlag, **kwargs):
     '''
@@ -40,6 +39,9 @@ def gen_synthetic_split(fast, tlag, **kwargs):
         spol = defaults['spol']
     if 'nsamps' in kwargs:
         nsamps = kwargs['nsamps']
+        nsamps_rec = nsamps = int(1 + 10*(1/ dfreq) / delta)
+        print(f'Not using reccomended number of samples {nsamps_rec} can cause weird things to happen if you want to apply dt* - especially in the case of nulls')
+        print('The cause of this bug is yet to be identified [27/10/22] but is probably due to the frequency domain operations used to apply a t* operator')
     else:
         #default number of samples is 10 times dominant preiod (1/dfreq)
         nsamps = int(1 + 10*(1/ dfreq) / delta)
@@ -53,9 +55,8 @@ def gen_synthetic_split(fast, tlag, **kwargs):
     waveletZ = randn_noise(int(nsamps), max_amp*noise)
     waveletF, waveletS = rotate(waveletN, waveletE, fast)
     waveletS = apply_tshift(waveletS, tlag, delta, time[0])
-    if 'dtstar' in kwargs:
-        waveletS = apply_tstar(waveletS, 1, kwargs['dtstar'], delta, nsamps)
     waveletN, waveletE = rotate(waveletF, waveletS, -1*fast)
+   
     # Now add metadata needed to make a obspy Trace/Stream object
     stats = make_stats_dict(delta, nsamps, dfreq, time)
     traceN = obspy.Trace()
@@ -81,6 +82,20 @@ def gen_synthetic_split(fast, tlag, **kwargs):
     traceZ.stats.sac.cmpinc = 0
     traceZ.stats.sac.cmpnm = 'Z'
     traceZ.data = waveletZ
+    # attenuate traces if needed 
+    if 'dtstar' in kwargs:
+        [traceF, traceS] = rotate_traces(traceN, traceE, fast)
+        if kwargs['dtstar'] > 0:
+            traceSA = attenuate_traces(traceS, 1, kwargs['dtstar'])
+            [traceN, traceE] = rotate_traces(traceF, traceSA, -1*fast)
+        elif kwargs['dtstar'] < 0:
+            traceFA = attenuate_traces(traceF, 1, kwargs['dtstar'])
+            [traceN, traceE] = rotate_traces(traceFA, traceS, -1*fast)
+        elif kwargs['dtstar'] == 0:
+            print('dt* = 0')
+            [traceN, traceE] = rotate_traces(traceF, traceS, -1*fast)
+        else:
+            raise ValueError(f'Unknown dt* {kwargs["dtstar"]}')
     synthetic = obspy.Stream([traceN, traceE, traceZ])
     return synthetic
 
