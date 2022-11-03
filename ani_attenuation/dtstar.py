@@ -101,5 +101,5 @@ if __name__ == '__main__':
     st = obspy.read('/Users/ja17375/Projects/Matisse_Synthetics/ppv1/ideal/Noise20/data/SWAV01.BHE')
     trace = st[0]
     trace.plot()
-    apply_tstar_operator(trace, 1, 1)
+    trace = apply_tstar_operator(trace, 1, 1)
     trace.plot()

@@ -13,7 +13,6 @@ import obspy
 
 from .waveform_tools import attenuate_traces, rotate_traces
 
-
 def measure_dtstar(files, snr_max, nfast=181, ndts=81):
     
     #loop over array of sac file names and read
@@ -31,13 +30,9 @@ def measure_dtstar(files, snr_max, nfast=181, ndts=81):
     idx_min = np.unravel_index(np.argmin(difr_stack),shape=grid_shape)
 
 #@numba.jit(parallel=True)
-def dtstar_gridsearch(waveforms, nfast, ndts, fref=1):
-    
-
+def dtstar_gridsearch(waveforms, nfast, ndts, dts_max=4, fref=1):
     fast_directions = np.linspace(-90,90,nfast)
     dtstars = np.linspace(0,4.0,ndts)
-    trN = waveforms.select(channel='BHN')[0]
-    trE = waveforms.select(channel='BHE')[0]
     difrs = np.zeros((nfast, ndts))
     for i in range(0,nfast):
         # As we only attenaute the fast trace we can caluclate the inst. freq.
@@ -46,8 +41,9 @@ def dtstar_gridsearch(waveforms, nfast, ndts, fref=1):
             trF, trS = rotate_traces(trN, trE ,fast_directions[i])
             trF = attenuate_traces(trF, fref, dtstars[j])
             inst_freq_trS = measure_inst_freq(trS)
-            inst_freq_trF = measure_inst_freq(trF)
-            difrs[i,j] = np.abs(inst_freq_trF - inst_freq_trS)
+
+        inst_freq_trF = measure_inst_freq(trF)
+        difrs[i,j] = np.abs(inst_freq_trF - inst_freq_trS)
     
     return difrs
             
