@@ -38,7 +38,6 @@ def dtstar_gridsearch(waveforms, nfast, ndts, dts_max=4, fref=1):
         
         # As we only attenaute the fast trace we can caluclate the inst. freq.
         # for the slow trace now        
-        
         for j in numba.prange(0, ndts):
             trN = waveforms.select(channel='BHN')[0].copy()
             trE = waveforms.select(channel='BHE')[0].copy()
