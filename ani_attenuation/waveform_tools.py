@@ -37,7 +37,7 @@ def rotate_traces(trace1, trace2, theta):
     trace1p = trace1.copy()
     trace2p = trace2.copy()
     
-    ydatap, xdatap = rotate(ydata, xdata, theta)
+    xdatap, ydatap = rotate(xdata, ydata, theta)
     trace1p.data = ydatap
     trace2p.data = xdatap
     trace1p.stats.sac['cmpaz'] = trace1.stats.sac['cmpaz'] + theta 
@@ -50,10 +50,10 @@ def rotate(x, y, theta):
 
     Parameters
     ----------
-    tr1 : TYPE
-        DESCRIPTION.
-    tr2 : TYPE
-        DESCRIPTION.
+    y : Numpy array
+        array holding y component data (e.g. N component in geog. frame)
+    x : Numpy array
+        array holding x component data (e.g. E component in geog. frame)
 
     Returns
     -------
@@ -65,7 +65,7 @@ def rotate(x, y, theta):
     if (len(y.shape) > 1 ) or (len(x.shape) > 1):
         raise ValueError('Traces must be 1-D arrays!')
     
-    trs = np.vstack((x, y)) # tr1 is y so goes second
+    trs = np.vstack((x, y))
     # form rotation matrix
     radtheta = np.deg2rad(theta)
     c = np.cos(radtheta)
@@ -76,7 +76,7 @@ def rotate(x, y, theta):
         ])
     xp, yp = np.dot(rotmat, trs)
     
-    return yp, xp
+    return xp, yp
     
 def time_base(delta, nsamps):
     '''
@@ -183,9 +183,9 @@ def apply_tstar(signal, fref, tstar, delta, nsamps):
     ang_freqs = 2*np.pi*frequencies
     ang_fref = 2*np.pi*fref
     # Create causual t* multiplier 
-    aw_imag = (-1j*tstar*ang_freqs[1:]/np.pi)*np.log(ang_freqs[1:]/ang_fref)
-    aw_real = -1*ang_freqs[1:]*tstar/2
-    aw = np.ones(int(n/2,),dtype=np.complex128())
+    aw_imag = (-1j)*(1/np.pi) * tstar * ang_freqs[1:] * np.log((ang_freqs[1:])/ang_fref)
+    aw_real = (-1/2)*ang_freqs[1:]*tstar
+    aw = np.ones(n//2, dtype=np.complex128())
     aw[1:] = np.exp(aw_real + aw_imag)
     # Apply t* operate to frequency domain signal
     attenuated_fd_signal = np.zeros((int(n),), dtype=np.complex128())
@@ -194,7 +194,7 @@ def apply_tstar(signal, fref, tstar, delta, nsamps):
     inds = np.arange(n//2-1,-1,-1, dtype=np.int32())
     attenuated_fd_signal[n//2:] = np.conjugate(attenuated_fd_signal[inds])
     # Take inverse fft
-    attenuated_signal = np.fft.ifft(attenuated_fd_signal)
+    attenuated_signal = np.fft.ifft(attenuated_fd_signal, nsamps)
     
     return attenuated_signal[0:nsamps].real
 
