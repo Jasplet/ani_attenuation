@@ -19,7 +19,7 @@ def gen_synthetic_split(fast, tlag, **kwargs):
     -------
     None.
     '''
-    defaults = {'noise':0, 'dfreq':0.2, 'delta':0.05, 'spol':30}
+    defaults = {'noise':0, 'dfreq':0.2, 'delta':0.05, 'spol':30, 'fref':1}
     if 'noise'in kwargs:
         noise = kwargs['noise']
     else:
@@ -38,6 +38,10 @@ def gen_synthetic_split(fast, tlag, **kwargs):
         spol = kwargs['spol']
     else:
         spol = defaults['spol']
+    if 'fref' in kwargs:
+        fref = kwargs['fref']
+    else:
+        fref = defaults['fref']
     if 'nsamps' in kwargs:
         nsamps = kwargs['nsamps']
         nsamps_rec = int(1 + 10*(1/ dfreq) / delta)
@@ -88,10 +92,10 @@ def gen_synthetic_split(fast, tlag, **kwargs):
     if 'dtstar' in kwargs:
         [traceF, traceS] = rotate_traces(traceN, traceE, fast)
         if kwargs['dtstar'] > 0:
-            traceSA = attenuate_traces(traceS, 1, kwargs['dtstar'])
+            traceSA = attenuate_traces(traceS, fref, kwargs['dtstar'])
             [traceN, traceE] = rotate_traces(traceF, traceSA, -1*fast)
         elif kwargs['dtstar'] < 0:
-            traceFA = attenuate_traces(traceF, 1, kwargs['dtstar'])
+            traceFA = attenuate_traces(traceF, fref, kwargs['dtstar'])
             [traceN, traceE] = rotate_traces(traceFA, traceS, -1*fast)
         elif kwargs['dtstar'] == 0:
             print('dt* = 0')
@@ -147,12 +151,12 @@ def make_stats_dict(delta, nsamps, dfreq, time, spol):
     sachdrs.delta = delta
     sachdrs.b = time[0]
     sachdrs.e = time[-1]
+    sachdrs.baz = spol # Imposing assumption that BAZ == SPOL as in SKS case
     sachdrs.evla = 0
     sachdrs.evlo = 0
     sachdrs.evdp = 500
     sachdrs.stlo = 0
     sachdrs.stla = 80
-    sachdrs.baz = spol
     sachdrs.kstnm = 'SYN'
     #Set defualt windows (double dominant period 1/dfreq)
     sachdrs.a = -2*(1/dfreq)
@@ -163,5 +167,5 @@ def make_stats_dict(delta, nsamps, dfreq, time, spol):
     return stats
 
 if __name__ == '__main__':
-    wv = gen_synthetic_split(45, 1, spol=20, nsamp=1001)
+    wv = gen_synthetic_split(45, 1, spol=20, nsamp=2001, dtstar=2)
     wv.plot()
