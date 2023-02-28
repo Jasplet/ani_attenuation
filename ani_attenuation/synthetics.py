@@ -9,7 +9,7 @@ Created on Mon Aug  8 10:32:28 2022
 import numpy as np
 import obspy
 
-from .waveform_tools import rotate, apply_tshift, time_base, randn_noise, attenuate_traces, rotate_traces
+from ani_attenuation.waveform_tools import rotate, apply_tshift, time_base, randn_noise, attenuate_traces, rotate_traces
     
 def gen_synthetic_split(fast, tlag, **kwargs):
     '''
@@ -40,32 +40,33 @@ def gen_synthetic_split(fast, tlag, **kwargs):
         spol = defaults['spol']
     if 'nsamps' in kwargs:
         nsamps = kwargs['nsamps']
-        nsamps_rec = nsamps = int(1 + 10*(1/ dfreq) / delta)
+        nsamps_rec = int(1 + 10*(1/ dfreq) / delta)
         print(f'Not using reccomended number of samples {nsamps_rec} can cause weird things to happen if you want to apply dt* - especially in the case of nulls')
         print('The cause of this bug is yet to be identified [27/10/22] but is probably due to the frequency domain operations used to apply a t* operator')
     else:
         #default number of samples is 10 times dominant preiod (1/dfreq)
         nsamps = int(1 + 10*(1/ dfreq) / delta)
+
     time = time_base(delta, nsamps)
     # create wavelet
     wavelet = gabor_wavelet(time, dfreq)
     max_amp = np.max(np.abs(wavelet))
-    # apply polarisation to get N, E components
     waveletN = wavelet*np.cos(np.deg2rad(spol)) + randn_noise(int(nsamps), max_amp*noise)
     waveletE = wavelet*np.sin(np.deg2rad(spol)) + randn_noise(int(nsamps), max_amp*noise)
     waveletZ = randn_noise(int(nsamps), max_amp*noise)
+    # Take N, E Wavelets and add splitting    
     waveletF, waveletS = rotate(waveletN, waveletE, fast)
     waveletS = apply_tshift(waveletS, tlag, delta, time[0])
     waveletN, waveletE = rotate(waveletF, waveletS, -1*fast)
    
     # Now add metadata needed to make a obspy Trace/Stream object
-    stats = make_stats_dict(delta, nsamps, dfreq, time)
+    stats = make_stats_dict(delta, nsamps, dfreq, time, spol)
     traceN = obspy.Trace()
     traceN.stats = stats.copy()
     traceN.stats.channel = 'BHN'
     traceN.stats.sac.cmpaz = 0
     traceN.stats.sac.cmpinc = 90
-    traceN.stats.sac.cmpnm = 'N'
+    traceN.stats.sac.cmpnm = 'BHN'
     traceN.data = waveletN
     #East cmp
     traceE = obspy.Trace()
@@ -73,7 +74,7 @@ def gen_synthetic_split(fast, tlag, **kwargs):
     traceE.stats.channel = 'BHE'
     traceE.stats.sac.cmpaz = 90
     traceE.stats.sac.cmpinc = 90
-    traceE.stats.sac.cmpnm = 'E'
+    traceE.stats.sac.cmpnm = 'BHE'
     traceE.data = waveletE
     # Vertical cmp
     traceZ = obspy.Trace()
@@ -81,7 +82,7 @@ def gen_synthetic_split(fast, tlag, **kwargs):
     traceZ.stats.channel = 'BHZ'
     traceZ.stats.sac.cmpaz = 00
     traceZ.stats.sac.cmpinc = 0
-    traceZ.stats.sac.cmpnm = 'Z'
+    traceZ.stats.sac.cmpnm = 'BHZ'
     traceZ.data = waveletZ
     # attenuate traces if needed 
     if 'dtstar' in kwargs:
@@ -132,7 +133,7 @@ def ricker_wavelet(t, sigma=0.1):
     
     return ricker
 
-def make_stats_dict(delta, nsamps, dfreq, time):
+def make_stats_dict(delta, nsamps, dfreq, time, spol):
     '''
     Makes base stats object for obspy trace
     '''
@@ -151,6 +152,7 @@ def make_stats_dict(delta, nsamps, dfreq, time):
     sachdrs.evdp = 500
     sachdrs.stlo = 0
     sachdrs.stla = 80
+    sachdrs.baz = spol
     sachdrs.kstnm = 'SYN'
     #Set defualt windows (double dominant period 1/dfreq)
     sachdrs.a = -2*(1/dfreq)
@@ -161,4 +163,5 @@ def make_stats_dict(delta, nsamps, dfreq, time):
     return stats
 
 if __name__ == '__main__':
-    wv = gen_synthetic_split(45, 1, spol=20)
+    wv = gen_synthetic_split(45, 1, spol=20, nsamp=1001)
+    wv.plot()
