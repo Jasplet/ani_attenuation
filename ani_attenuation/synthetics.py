@@ -167,5 +167,5 @@ def make_stats_dict(delta, nsamps, dfreq, time, spol):
     return stats
 
 if __name__ == '__main__':
-    wv = gen_synthetic_split(45, 1, spol=20, nsamp=2001, dtstar=2)
+    wv = gen_synthetic_split(45, 1, spol=20, dtstar=1, dfreq=0.1)
     wv.plot()
