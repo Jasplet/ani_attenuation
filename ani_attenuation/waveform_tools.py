@@ -199,9 +199,10 @@ def apply_tstar(signal, fref, tstar, delta):
     attenuated_neg_f = np.conjugate(attenuated_pos_f[1:])
     # index from [n//2+1] following scipy docs. if n is even then +/- nyquist frewquencies
     # are aliased together
+    reversed_nef_f = np.flip(attenuated_neg_f).copy()
     attenuated_fd_signal[n//2+1:] = np.flip(attenuated_neg_f)
     # Take inverse fft
-    attenuated_signal = ifft(attenuated_fd_signal, nsamps)
+    attenuated_signal = ifft(attenuated_fd_signal, n)
     
     return attenuated_signal[0:nsamps].real
 
