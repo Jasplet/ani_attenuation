@@ -44,9 +44,6 @@ def gen_synthetic_split(fast, tlag, **kwargs):
         fref = defaults['fref']
     if 'nsamps' in kwargs:
         nsamps = kwargs['nsamps']
-        nsamps_rec = int(1 + 10*(1/ dfreq) / delta)
-        print(f'Not using reccomended number of samples {nsamps_rec} can cause weird things to happen if you want to apply dt* - especially in the case of nulls')
-        print('The cause of this bug is yet to be identified [27/10/22] but is probably due to the frequency domain operations used to apply a t* operator')
     else:
         #default number of samples is 10 times dominant preiod (1/dfreq)
         nsamps = int(1 + 10*(1/ dfreq) / delta)
@@ -70,7 +67,7 @@ def gen_synthetic_split(fast, tlag, **kwargs):
     traceN.stats.channel = 'BHN'
     traceN.stats.sac.cmpaz = 0
     traceN.stats.sac.cmpinc = 90
-    traceN.stats.sac.cmpnm = 'BHN'
+    traceN.stats.sac.kcmpnm = 'BHN'
     traceN.data = waveletN
     #East cmp
     traceE = obspy.Trace()
@@ -78,7 +75,7 @@ def gen_synthetic_split(fast, tlag, **kwargs):
     traceE.stats.channel = 'BHE'
     traceE.stats.sac.cmpaz = 90
     traceE.stats.sac.cmpinc = 90
-    traceE.stats.sac.cmpnm = 'BHE'
+    traceE.stats.sac.kcmpnm = 'BHE'
     traceE.data = waveletE
     # Vertical cmp
     traceZ = obspy.Trace()
@@ -86,7 +83,7 @@ def gen_synthetic_split(fast, tlag, **kwargs):
     traceZ.stats.channel = 'BHZ'
     traceZ.stats.sac.cmpaz = 00
     traceZ.stats.sac.cmpinc = 0
-    traceZ.stats.sac.cmpnm = 'BHZ'
+    traceZ.stats.sac.kcmpnm = 'BHZ'
     traceZ.data = waveletZ
     # attenuate traces if needed 
     if 'dtstar' in kwargs:

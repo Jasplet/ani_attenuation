@@ -10,17 +10,18 @@ import numpy as np
 import obspy
 
 from scipy.interpolate import PchipInterpolator
+from scipy.fft import fft, ifft, fftfreq, next_fast_len
 
-def rotate_traces(trace1, trace2, theta):
+def rotate_traces(y_trace, x_trace, theta):
     '''
     Rotate two obspy traces to the desired rotation angle theta. 
     
     Adapted port of msac_rotate 
     Parameters
     ----------
-    trace1 : obspy Trace
+    y_trace : obspy Trace
         y-direction trace (e.g. North component)
-    trace2 : obspy Trace
+    x_trace : obspy Trace
         x-direction trace (e.g. East component)
     theta : float
         Rotation angle in degrees
@@ -32,19 +33,19 @@ def rotate_traces(trace1, trace2, theta):
     trace2p : obspy Trace
         rotated trace2
     '''
-    ydata = trace1.data.copy()
-    xdata = trace2.data.copy()
-    trace1p = trace1.copy()
-    trace2p = trace2.copy()
+    ydata = y_trace.data.copy()
+    xdata = x_trace.data.copy()
+    y_trace1p = y_trace.copy()
+    x_trace2p = x_trace.copy()
     
-    xdatap, ydatap = rotate(xdata, ydata, theta)
-    trace1p.data = ydatap
-    trace2p.data = xdatap
-    trace1p.stats.sac['cmpaz'] = trace1.stats.sac['cmpaz'] + theta 
-    trace2p.stats.sac['cmpaz'] = trace2.stats.sac['cmpaz'] + theta
-    return trace1p, trace2p
+    ydatap, xdatap = rotate(ydata, xdata, theta)
+    y_trace1p.data = ydatap
+    x_trace2p.data = xdatap
+    y_trace1p.stats.sac['cmpaz'] = y_trace.stats.sac['cmpaz'] + theta 
+    x_trace2p.stats.sac['cmpaz'] = x_trace.stats.sac['cmpaz'] + theta
+    return y_trace1p, x_trace2p
     
-def rotate(x, y, theta):
+def rotate(y, x, theta):
     """
     Rotate 2 orthogonal traces
 
@@ -71,12 +72,12 @@ def rotate(x, y, theta):
     c = np.cos(radtheta)
     s = np.sin(radtheta)
     rotmat = np.array([
-        [ np.cos(radtheta), np.sin(radtheta)],
-        [-np.sin(radtheta), np.cos(radtheta)]
+        [ np.cos(radtheta), -np.sin(radtheta)],
+        [np.sin(radtheta), np.cos(radtheta)]
         ])
     xp, yp = np.dot(rotmat, trs)
     
-    return xp, yp
+    return yp, xp
     
 def time_base(delta, nsamps):
     '''
@@ -145,12 +146,12 @@ def attenuate_traces(trace, fref, tstar):
     signal = trace.data.copy()
     delta = trace.stats.delta
     nsamps = trace.stats.npts
-    attenuated_signal = apply_tstar(signal, fref, tstar, delta, nsamps)
+    attenuated_signal = apply_tstar(signal, fref, tstar, delta)
     
     trace.data = attenuated_signal
     return trace
     
-def apply_tstar(signal, fref, tstar, delta, nsamps):
+def apply_tstar(signal, fref, tstar, delta):
     """
     Applies a causal t* operaor (at a reference fruency fref) to the input trace
 
@@ -174,9 +175,13 @@ def apply_tstar(signal, fref, tstar, delta, nsamps):
     """
 
     # Take fft of trace. Supplying a larger n 0-pads trace.
-    n = int(nextpow2(nsamps))
-    fd_signal = np.fft.fft(signal, n)
-    frequencies = np.fft.fftfreq(n, d=delta)[0:n//2]
+    # Unlike the MATLAB implementation this is based on SciPy is 
+    # not optimal for array length 2^n, instead use the Scipy next_fast_len
+    # to work out the omptimal n and zero pad it (following Scipy example)
+    nsamps = len(signal)
+    n = next_fast_len(nsamps)
+    fd_signal = fft(signal, n)
+    frequencies = fftfreq(n, d=delta)[0:n//2]
     #Negative frequencies are in second half of array     
     
     #get angular frequencies
@@ -189,12 +194,16 @@ def apply_tstar(signal, fref, tstar, delta, nsamps):
     aw[1:] = np.exp(aw_real + aw_imag)
     # Apply t* operate to frequency domain signal
     attenuated_fd_signal = np.zeros((int(n),), dtype=np.complex128())
-    attenuated_fd_signal[0:n//2] = fd_signal[0:n//2]*aw
+    attenuated_pos_f = fd_signal[0:n//2]*aw
+    attenuated_fd_signal[0:n//2] = attenuated_pos_f
     # Restore symettry for negative frequencies
-    inds = np.arange(n//2-1,-1,-1, dtype=np.int32())
-    attenuated_fd_signal[n//2:] = np.conjugate(attenuated_fd_signal[inds])
+    # index pos frequencies from 1 as we don't need to repeate f=0
+    attenuated_neg_f = np.conjugate(attenuated_pos_f[1:])
+    # index from [n//2+1] following scipy docs. if n is even then +/- nyquist frewquencies
+    # are aliased together
+    attenuated_fd_signal[n//2+1:] = np.flip(attenuated_neg_f)
     # Take inverse fft
-    attenuated_signal = np.fft.ifft(attenuated_fd_signal, nsamps)
+    attenuated_signal = ifft(attenuated_fd_signal, nsamps)
     
     return attenuated_signal[0:nsamps].real
 
@@ -207,5 +216,5 @@ if __name__ == '__main__':
     st = obspy.read('/Users/ja17375/Projects/Matisse_Synthetics/ppv1/ideal/Noise20/data/SWAV01.BHE')
     trace = st[0]
     trace.plot()
-    apply_tstar_operator(trace, 1, 1)
+    apply_tstar(trace, 1, 1)
     trace.plot()
