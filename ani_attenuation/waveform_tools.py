@@ -65,19 +65,19 @@ def rotate(y, x, theta):
         raise ValueError('Traces must be same length!')
     if (len(y.shape) > 1 ) or (len(x.shape) > 1):
         raise ValueError('Traces must be 1-D arrays!')
-    
-    trs = np.vstack((x, y))
+    # make set of (x,y) vectors
+    xy = np.vstack((x, y))
     # form rotation matrix
     radtheta = np.deg2rad(theta)
     c = np.cos(radtheta)
     s = np.sin(radtheta)
     rotmat = np.array([
-        [ np.cos(radtheta), -np.sin(radtheta)],
-        [np.sin(radtheta), np.cos(radtheta)]
+        [ c, -1*s],
+        [ s,   c ]
         ])
-    xp, yp = np.dot(rotmat, trs)
+    m = np.matmul(rotmat, xy)
     
-    return yp, xp
+    return m[1], m[0]
     
 def time_base(delta, nsamps):
     '''
@@ -145,9 +145,7 @@ def attenuate_traces(trace, fref, tstar):
     """
     signal = trace.data.copy()
     delta = trace.stats.delta
-    nsamps = trace.stats.npts
-    attenuated_signal = apply_tstar(signal, fref, tstar, delta)
-    
+    attenuated_signal = apply_tstar(signal, fref, tstar, delta)    
     trace.data = attenuated_signal
     return trace
     
