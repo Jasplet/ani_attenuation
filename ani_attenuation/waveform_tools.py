@@ -72,8 +72,8 @@ def rotate(y, x, theta):
     c = np.cos(radtheta)
     s = np.sin(radtheta)
     rotmat = np.array([
-        [ np.cos(radtheta), np.sin(radtheta)],
-        [-np.sin(radtheta), np.cos(radtheta)]
+        [ np.cos(radtheta), -np.sin(radtheta)],
+        [np.sin(radtheta), np.cos(radtheta)]
         ])
     xp, yp = np.dot(rotmat, trs)
     
