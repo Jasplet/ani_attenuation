@@ -204,6 +204,8 @@ def apply_tstar(signal, fref, tstar, delta):
     # Take inverse fft
     attenuated_signal = ifft(attenuated_fd_signal, n)
     
+    #Extra zero padding adds to end of array, so we can just index them out
+    # and return the origional nsamps
     return attenuated_signal[0:nsamps].real
 
 def nextpow2(i):
