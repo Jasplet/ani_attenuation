@@ -125,31 +125,34 @@ def randn_noise(n, amp):
     """
     return np.random.randn(n)*amp
 
-def attenuate_traces(trace, fref, tstar):
+def attenuate_traces(trace, tstar, fref=1):
     """
     Applies t* operator to obspy trace object
 
     Parameters
     ----------
-    trace : TYPE
-        DESCRIPTION.
-    fref : TYPE
-        DESCRIPTION.
-    tstar : TYPE
-        DESCRIPTION.
+    trace : obspy Trace object
+        Trace holding the waveform data we want to attenuate
+    tstar : float
+        attenuation term to apply to waveform, where t* is the path integral
+        of 1/(v*Q)
+    fref : float
+        reference frequency of causal attenuation operator
+        Default is 1Hz, 0.1 - 1Hz is usually a safe bet
 
     Returns
     -------
-    None.
-
+    attenuated_trace : obspy Trace
+        A Trace holding the attenuated input waveform     
     """
-    signal = trace.data.copy()
+    attenuated_trace = trace.copy()
     delta = trace.stats.delta
-    attenuated_signal = apply_tstar(signal, fref, tstar, delta)    
-    trace.data = attenuated_signal
-    return trace
+    # Copy input trace data to stop operation happing inplace.
+    attenuated_signal = apply_tstar(trace.data.copy(), tstar, delta, fref)    
+    attenuated_trace.data = attenuated_signal
+    return attenuated_trace
     
-def apply_tstar(signal, fref, tstar, delta):
+def apply_tstar(signal, tstar, delta, fref):
     """
     Applies a causal t* operaor (at a reference fruency fref) to the input trace
 
@@ -159,16 +162,21 @@ def apply_tstar(signal, fref, tstar, delta):
     
     Parameters
     ----------
-    signal : TYPE
-        DESCRIPTION.
-    fref : TYPE
-        DESCRIPTION.
-    tstar : TYPE
-        DESCRIPTION.
-
+    signal : 1-D array
+        numpy array holding signal to attenuate
+    tstar : float
+        attenuation term to apply to waveform, where t* is the path integral
+        of 1/(v*Q)
+    delta : float
+        sample rate (in seconds) of waveform data
+    fref : float
+        reference frequency of causal attenuation operator
+        Default is 1Hz, 0.1 - 1Hz is usually a safe bet
+    
     Returns
     -------
-    None.
+    atenuated_signal : 1-D array
+        Real components of the attenuated signal (imaginary components can be disregarded)
 
     """
 
@@ -204,6 +212,8 @@ def apply_tstar(signal, fref, tstar, delta):
     # Take inverse fft
     attenuated_signal = ifft(attenuated_fd_signal, n)
     
+    #Extra zero padding adds to end of array, so we can just index them out
+    # and return the origional nsamps
     return attenuated_signal[0:nsamps].real
 
 def nextpow2(i):
