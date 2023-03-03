@@ -16,3 +16,5 @@ TO-DOs
 
 - requirements.txt
 
+- move debug_ifft notebook to notebooks/ 
+    - checksums and dt* testing should be re-written as proper tests
