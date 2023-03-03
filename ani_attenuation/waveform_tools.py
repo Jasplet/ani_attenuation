@@ -133,12 +133,12 @@ def attenuate_traces(trace, tstar, fref=1):
     ----------
     trace : obspy Trace object
         Trace holding the waveform data we want to attenuate
-    fref : float
-        reference frequency of causal attenuation operator
-        Default is 1Hz, 0.1 - 1Hz is usually a safe bet
     tstar : float
         attenuation term to apply to waveform, where t* is the path integral
         of 1/(v*Q)
+    fref : float
+        reference frequency of causal attenuation operator
+        Default is 1Hz, 0.1 - 1Hz is usually a safe bet
 
     Returns
     -------
@@ -164,14 +164,19 @@ def apply_tstar(signal, tstar, delta, fref):
     ----------
     signal : 1-D array
         numpy array holding signal to attenuate
-    fref : TYPE
-        DESCRIPTION.
-    tstar : TYPE
-        DESCRIPTION.
-
+    tstar : float
+        attenuation term to apply to waveform, where t* is the path integral
+        of 1/(v*Q)
+    delta : float
+        sample rate (in seconds) of waveform data
+    fref : float
+        reference frequency of causal attenuation operator
+        Default is 1Hz, 0.1 - 1Hz is usually a safe bet
+    
     Returns
     -------
-    None.
+    atenuated_signal : 1-D array
+        Real components of the attenuated signal
 
     """
 
