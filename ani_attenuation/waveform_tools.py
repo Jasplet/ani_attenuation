@@ -142,15 +142,15 @@ def attenuate_traces(trace, tstar, fref=1):
 
     Returns
     -------
-
-    signal : obspy Trace
+    attenuated_trace : obspy Trace
         A Trace holding the attenuated input waveform     
     """
-    signal = trace.data.copy()
+    attenuated_trace = trace.copy()
     delta = trace.stats.delta
-    attenuated_signal = apply_tstar(signal, fref, tstar, delta)    
-    signal.data = attenuated_signal
-    return signal
+    # Copy input trace data to stop operation happing inplace.
+    attenuated_signal = apply_tstar(trace.data.copy(), fref, tstar, delta)    
+    attenuated_trace.data = attenuated_signal
+    return attenuated_trace
     
 def apply_tstar(signal, fref, tstar, delta):
     """
