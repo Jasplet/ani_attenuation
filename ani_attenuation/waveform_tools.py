@@ -125,29 +125,32 @@ def randn_noise(n, amp):
     """
     return np.random.randn(n)*amp
 
-def attenuate_traces(trace, fref, tstar):
+def attenuate_traces(trace, tstar, fref=1):
     """
     Applies t* operator to obspy trace object
 
     Parameters
     ----------
-    trace : TYPE
-        DESCRIPTION.
-    fref : TYPE
-        DESCRIPTION.
-    tstar : TYPE
-        DESCRIPTION.
+    trace : obspy Trace object
+        Trace holding the waveform data we want to attenuate
+    fref : float
+        reference frequency of causal attenuation operator
+        Default is 1Hz, 0.1 - 1Hz is usually a safe bet
+    tstar : float
+        attenuation term to apply to waveform, where t* is the path integral
+        of 1/(v*Q)
 
     Returns
     -------
-    None.
 
+    signal : obspy Trace
+        A Trace holding the attenuated input waveform     
     """
     signal = trace.data.copy()
     delta = trace.stats.delta
     attenuated_signal = apply_tstar(signal, fref, tstar, delta)    
-    trace.data = attenuated_signal
-    return trace
+    signal.data = attenuated_signal
+    return signal
     
 def apply_tstar(signal, fref, tstar, delta):
     """
