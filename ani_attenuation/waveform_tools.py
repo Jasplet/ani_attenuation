@@ -148,11 +148,11 @@ def attenuate_traces(trace, tstar, fref=1):
     attenuated_trace = trace.copy()
     delta = trace.stats.delta
     # Copy input trace data to stop operation happing inplace.
-    attenuated_signal = apply_tstar(trace.data.copy(), fref, tstar, delta)    
+    attenuated_signal = apply_tstar(trace.data.copy(), tstar, delta, fref)    
     attenuated_trace.data = attenuated_signal
     return attenuated_trace
     
-def apply_tstar(signal, fref, tstar, delta):
+def apply_tstar(signal, tstar, delta, fref):
     """
     Applies a causal t* operaor (at a reference fruency fref) to the input trace
 
@@ -162,8 +162,8 @@ def apply_tstar(signal, fref, tstar, delta):
     
     Parameters
     ----------
-    signal : TYPE
-        DESCRIPTION.
+    signal : 1-D array
+        numpy array holding signal to attenuate
     fref : TYPE
         DESCRIPTION.
     tstar : TYPE
