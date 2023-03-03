@@ -176,7 +176,7 @@ def apply_tstar(signal, tstar, delta, fref):
     Returns
     -------
     atenuated_signal : 1-D array
-        Real components of the attenuated signal
+        Real components of the attenuated signal (imaginary components can be disregarded)
 
     """
 
