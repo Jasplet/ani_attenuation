@@ -125,7 +125,7 @@ def randn_noise(n, amp):
     """
     return np.random.randn(n)*amp
 
-def attenuate_traces(trace, tstar, fref=1):
+def attenuate_traces(trace, tstar, fref=None):
     """
     Applies t* operator to obspy trace object
 
@@ -138,13 +138,16 @@ def attenuate_traces(trace, tstar, fref=1):
         of 1/(v*Q)
     fref : float
         reference frequency of causal attenuation operator
-        Default is 1Hz, 0.1 - 1Hz is usually a safe bet
+        Default is set to nyquist frrquency following advice of Muller (1984) that this is the most convienient
 
     Returns
     -------
     attenuated_trace : obspy Trace
         A Trace holding the attenuated input waveform     
     """
+    if fref is None:
+        #set fref = fnyquist
+        fref = 1/(2*delta)
     attenuated_trace = trace.copy()
     delta = trace.stats.delta
     # Copy input trace data to stop operation happing inplace.
@@ -171,7 +174,7 @@ def apply_tstar(signal, tstar, delta, fref):
         sample rate (in seconds) of waveform data
     fref : float
         reference frequency of causal attenuation operator
-        Default is 1Hz, 0.1 - 1Hz is usually a safe bet
+        Reccomeneded value is the nyquist frequency 1/(2*delta)
     
     Returns
     -------
