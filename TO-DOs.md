@@ -18,3 +18,7 @@ TO-DOs
 
 - move debug_ifft notebook to notebooks/ 
     - checksums and dt* testing should be re-written as proper tests
+
+- rename ani_attenuation to something that makes more sense (but NOT src)
+    - attenupy?
+    - attenuation
