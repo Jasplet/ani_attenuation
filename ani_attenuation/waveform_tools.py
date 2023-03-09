@@ -194,7 +194,7 @@ def apply_tstar(signal, tstar, delta, fref):
     ang_freqs = 2*np.pi*frequencies
     ang_fref = 2*np.pi*fref
     # Create causual t* multiplier 
-    aw_imag = (-1j)*(1/np.pi) * tstar * ang_freqs[1:] * np.log((ang_freqs[1:])/ang_fref)
+    aw_imag = (1j)*(1/np.pi) * tstar * ang_freqs[1:] * np.log((ang_freqs[1:])/ang_fref)
     aw_real = (-1/2)*ang_freqs[1:]*tstar
     aw = np.ones(n//2, dtype=np.complex128())
     aw[1:] = np.exp(aw_real + aw_imag)
