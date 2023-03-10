@@ -87,18 +87,19 @@ def gen_synthetic_split(fast, tlag, **kwargs):
     traceZ.data = waveletZ
     # attenuate traces if needed 
     if 'dtstar' in kwargs:
+        dtstar = kwargs['dtstar']
         [traceF, traceS] = rotate_traces(traceN, traceE, fast)
-        if kwargs['dtstar'] > 0:
-            traceSA = attenuate_traces(traceS, fref, kwargs['dtstar'])
+        if dtstar > 0:
+            traceSA = attenuate_traces(traceS, dtstar, fref)
             [traceN, traceE] = rotate_traces(traceF, traceSA, -1*fast)
-        elif kwargs['dtstar'] < 0:
-            traceFA = attenuate_traces(traceF, fref, kwargs['dtstar'])
+        elif dtstar < 0:
+            traceFA = attenuate_traces(traceF, dtstar, fref)
             [traceN, traceE] = rotate_traces(traceFA, traceS, -1*fast)
-        elif kwargs['dtstar'] == 0:
+        elif dtstar == 0:
             print('dt* = 0')
             [traceN, traceE] = rotate_traces(traceF, traceS, -1*fast)
         else:
-            raise ValueError(f'Unknown dt* {kwargs["dtstar"]}')
+            raise ValueError(f'Unknown dt* {dtstar}')
     synthetic = obspy.Stream([traceN, traceE, traceZ])
     return synthetic
 
@@ -164,5 +165,5 @@ def make_stats_dict(delta, nsamps, dfreq, time, spol):
     return stats
 
 if __name__ == '__main__':
-    wv = gen_synthetic_split(45, 1, spol=20, dtstar=1, dfreq=0.1)
+    wv = gen_synthetic_split(45, 1, spol=20, dtstar=1.1, dfreq=0.1)
     wv.plot()
