@@ -104,7 +104,7 @@ def gen_synthetic_split(fast, tlag, **kwargs):
 
 def gabor_wavelet(t, dfreq, gamma=6, v=np.pi*(2/5), t0=0):
     '''
-    Port of gbor wavelet function from msac_splitwave2
+    Port of gabor wavelet function from msac_splitwave2
     '''
     term1 = 2*np.cos(2. * np.pi * dfreq * (t - t0) + v)
     term2 = np.exp((-4 * (np.pi**2) * (dfreq**2) * (t-t0)**2)/gamma)
