@@ -19,7 +19,7 @@ def gen_synthetic_split(fast, tlag, **kwargs):
     -------
     None.
     '''
-    defaults = {'noise':0, 'dfreq':0.2, 'delta':0.05, 'spol':30, 'fref':1}
+    defaults = {'noise':0, 'dfreq':0.2, 'delta':0.05, 'spol':30}
     if 'noise'in kwargs:
         noise = kwargs['noise']
     else:
@@ -41,7 +41,8 @@ def gen_synthetic_split(fast, tlag, **kwargs):
     if 'fref' in kwargs:
         fref = kwargs['fref']
     else:
-        fref = defaults['fref']
+        # Set fref to Nyquist frequency
+        fref = 1/(2*delta)
     if 'nsamps' in kwargs:
         nsamps = kwargs['nsamps']
     else:
@@ -157,8 +158,8 @@ def make_stats_dict(delta, nsamps, dfreq, time, spol):
     sachdrs.stla = 80
     sachdrs.kstnm = 'SYN'
     #Set defualt windows (double dominant period 1/dfreq)
-    sachdrs.a = -2*(1/dfreq)
-    sachdrs.f = 2*(1/dfreq)
+    sachdrs.a = -1*(1/dfreq)
+    sachdrs.f = (1/dfreq)
     sachdrs.user0 = sachdrs.a
     sachdrs.user2 = sachdrs.f
     stats.sac = sachdrs
