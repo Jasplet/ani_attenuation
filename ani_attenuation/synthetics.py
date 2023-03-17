@@ -19,7 +19,7 @@ def gen_synthetic_split(fast, tlag, **kwargs):
     -------
     None.
     '''
-    defaults = {'noise':0, 'dfreq':0.2, 'delta':0.05, 'spol':30, 'fref':1}
+    defaults = {'noise':0, 'dfreq':0.2, 'delta':0.05, 'spol':30}
     if 'noise'in kwargs:
         noise = kwargs['noise']
     else:
@@ -41,7 +41,8 @@ def gen_synthetic_split(fast, tlag, **kwargs):
     if 'fref' in kwargs:
         fref = kwargs['fref']
     else:
-        fref = defaults['fref']
+        # Set fref to Nyquist frequency
+        fref = 1/(2*delta)
     if 'nsamps' in kwargs:
         nsamps = kwargs['nsamps']
     else:
@@ -87,24 +88,25 @@ def gen_synthetic_split(fast, tlag, **kwargs):
     traceZ.data = waveletZ
     # attenuate traces if needed 
     if 'dtstar' in kwargs:
+        dtstar = kwargs['dtstar']
         [traceF, traceS] = rotate_traces(traceN, traceE, fast)
-        if kwargs['dtstar'] > 0:
-            traceSA = attenuate_traces(traceS, fref, kwargs['dtstar'])
+        if dtstar > 0:
+            traceSA = attenuate_traces(traceS, dtstar, fref)
             [traceN, traceE] = rotate_traces(traceF, traceSA, -1*fast)
         elif kwargs['dtstar'] < 0:
             traceFA = attenuate_traces(traceF, fref, abs(kwargs['dtstar']))
             [traceN, traceE] = rotate_traces(traceFA, traceS, -1*fast)
-        elif kwargs['dtstar'] == 0:
+        elif dtstar == 0:
             print('dt* = 0')
             [traceN, traceE] = rotate_traces(traceF, traceS, -1*fast)
         else:
-            raise ValueError(f'Unknown dt* {kwargs["dtstar"]}')
+            raise ValueError(f'Unknown dt* {dtstar}')
     synthetic = obspy.Stream([traceN, traceE, traceZ])
     return synthetic
 
 def gabor_wavelet(t, dfreq, gamma=6, v=np.pi*(2/5), t0=0):
     '''
-    Port of gbor wavelet function from msac_splitwave2
+    Port of gabor wavelet function from msac_splitwave2
     '''
     term1 = 2*np.cos(2. * np.pi * dfreq * (t - t0) + v)
     term2 = np.exp((-4 * (np.pi**2) * (dfreq**2) * (t-t0)**2)/gamma)
@@ -156,13 +158,13 @@ def make_stats_dict(delta, nsamps, dfreq, time, spol):
     sachdrs.stla = 80
     sachdrs.kstnm = 'SYN'
     #Set defualt windows (double dominant period 1/dfreq)
-    sachdrs.a = -2*(1/dfreq)
-    sachdrs.f = 2*(1/dfreq)
+    sachdrs.a = -1*(1/dfreq)
+    sachdrs.f = (1/dfreq)
     sachdrs.user0 = sachdrs.a
     sachdrs.user2 = sachdrs.f
     stats.sac = sachdrs
     return stats
 
 if __name__ == '__main__':
-    wv = gen_synthetic_split(45, 1, spol=20, dtstar=1, dfreq=0.1)
+    wv = gen_synthetic_split(45, 1, spol=20, dtstar=1.1, dfreq=0.1)
     wv.plot()

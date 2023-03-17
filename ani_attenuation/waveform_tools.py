@@ -223,10 +223,3 @@ def nextpow2(i):
     n = 2
     while n < i: n = n*2
     return n
-
-if __name__ == '__main__':
-    st = obspy.read('/Users/ja17375/Projects/Matisse_Synthetics/ppv1/ideal/Noise20/data/SWAV01.BHE')
-    trace = st[0]
-    trace.plot()
-    apply_tstar(trace, 1, 1)
-    trace.plot()
