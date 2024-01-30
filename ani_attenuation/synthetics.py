@@ -94,7 +94,7 @@ def gen_synthetic_split(fast, tlag, **kwargs):
             traceSA = attenuate_traces(traceS, dtstar, fref)
             [traceN, traceE] = rotate_traces(traceF, traceSA, -1*fast)
         elif kwargs['dtstar'] < 0:
-            traceFA = attenuate_traces(traceF, fref, abs(kwargs['dtstar']))
+            traceFA = attenuate_traces(traceF, abs(kwargs['dtstar']),fref)
             [traceN, traceE] = rotate_traces(traceFA, traceS, -1*fast)
         elif dtstar == 0:
             print('dt* = 0')
